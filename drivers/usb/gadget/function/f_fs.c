@@ -3185,7 +3185,8 @@ static inline struct f_fs_opts *ffs_do_functionfs_bind(struct usb_function *f,
 	struct ffs_function *func = ffs_func_from_usb(f);
 	struct f_fs_opts *ffs_opts =
 		container_of(f->fi, struct f_fs_opts, func_inst);
-	struct ffs_data *ffs;
+	struct ffs_data *ffs_data;
+	struct ffs_data *ffs = func->ffs;
 	int ret;
 
 	ENTER();
