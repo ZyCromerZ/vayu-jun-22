@@ -28,11 +28,16 @@ MakeZip(){
         cd $AnykernelPath
     fi
     [ ! -z "$SpectrumFile" ] && [ -e "$SpectrumPath/$SpectrumFile" ] && cp -af $SpectrumPath/$SpectrumFile $AnykernelPath/init.spectrum.rc && sed -i "s/persist.spectrum.kernel.*/persist.spectrum.kernel $KERNEL_NAME/g" init.spectrum.rc
-    cp -af $MainPath/../../vayu/out/arch/arm64/boot/Image.gz-dtb $AnykernelPath && rm -f $MainPath/../../vayu/out/arch/arm64/boot/Image.gz-dtb 
-    cp -af $MainPath/../../vayu/out/arch/arm64/boot/dtbo.img $AnykernelPath && rm -f $MainPath/../../vayu/out/arch/arm64/boot/dtbo.img 
+    cp -af $MainPath/../../vayu/out/arch/arm64/boot/Image $AnykernelPath
+    cp -af $MainPath/../../vayu/out/arch/arm64/boot/dtbo.img $AnykernelPath
+    ( find "$MainPath/../../vayu/out/arch/arm64/boot/dts/qcom" -name "*.dtb" -exec cat {} + > $AnykernelPath/dtb )
     cp -af anykernel-real.sh anykernel.sh
     sed -i "s/kernel.string=.*/kernel.string=$KERNEL_NAME-$HeadCommit TEST by ZyCromerZ/g" anykernel.sh
-    zip -r ../kernel/zip/vayu/"[$TANGGAL]$KERNEL_NAME-$ZIP_KERNEL_VERSION.zip" ./ -x .git/**\* ./.git ./anykernel-real.sh ./.gitignore ./LICENSE ./README.md ./*.zip 
+    zip -r ../kernel/zip/vayu/"[$TANGGAL]$KERNEL_NAME-$ZIP_KERNEL_VERSION.zip" ./ -x .git/**\* ./.git ./anykernel-real.sh ./.gitignore ./LICENSE ./README.md ./*.zip
+    for ListFile in Image Image-dtb Image.gz Image.gz-dtb dtb dtb.img dt dt.img dtbo dtbo.img init.spectrum.rc
+    do
+        rm -rf $AnykernelPath/ListFile
+    done
     cd $MainPath
 }
 HeadCommit="$(git log --pretty=format:'%h' -1)"
@@ -63,5 +68,5 @@ else
                                 CROSS_COMPILE=aarch64-linux-android- \
                                 CROSS_COMPILE_ARM32=arm-linux-androideabi- \
                                 CLANG_TRIPLE=aarch64-linux-gnu-
-    [ -e ../../vayu/out/arch/arm64/boot/Image.gz-dtb ] && [ -e ../../vayu/out/arch/arm64/boot/dtbo.img ] && MakeZip
+    [ -e ../../vayu/out/arch/arm64/boot/Image ] && [ -e ../../vayu/out/arch/arm64/boot/dtbo.img ] && MakeZip
 fi
