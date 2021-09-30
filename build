@@ -36,7 +36,7 @@ MakeZip(){
     zip -r ../kernel/zip/vayu/"[$TANGGAL]$KERNEL_NAME-$ZIP_KERNEL_VERSION.zip" ./ -x .git/**\* ./.git ./anykernel-real.sh ./.gitignore ./LICENSE ./README.md ./*.zip
     for ListFile in Image Image-dtb Image.gz Image.gz-dtb dtb dtb.img dt dt.img dtbo dtbo.img init.spectrum.rc
     do
-        rm -rf $AnykernelPath/ListFile
+        rm -rf $AnykernelPath/$ListFile
     done
     cd $MainPath
 }
@@ -47,7 +47,7 @@ export KBUILD_BUILD_USER="ZyCromerZ"
 export KBUILD_BUILD_HOST="Lnix-$HeadCommit"
 export CCACHE_DIR="../../vayu/ccache"
 MainPath=$(pwd)
-Defconfig="vayu_defconfig"
+Defconfig="vayu_gcc_defconfig"
 SpectrumFile="None"
 KERNEL_NAME=$(cat "$MainPath/arch/arm64/configs/$Defconfig" | grep "CONFIG_LOCALVERSION=" | sed 's/CONFIG_LOCALVERSION="-*//g' | sed 's/"*//g' )
 ZIP_KERNEL_VERSION="4.14.$(cat "$MainPath/Makefile" | grep "SUBLEVEL =" | sed 's/SUBLEVEL = *//g')$(cat "$(pwd)/Makefile" | grep "EXTRAVERSION =" | sed 's/EXTRAVERSION = *//g')"
