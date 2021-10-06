@@ -5014,10 +5014,12 @@ int kgsl_device_platform_probe(struct kgsl_device *device)
 		goto error_pwrctrl_close;
 	}
 
-	if (!strcmp(name, "kgsl_3d0_irq"))
+	if (!strcmp(device->name, "kgsl_3d0_irq"))
 		irqflags |= IRQF_PERF_AFFINE;
 
-	status = devm_request_irq(&pdev->dev, num, handler, irqflags, name, data);
+	status = devm_request_irq(device->dev, device->pwrctrl.interrupt_num,
+				  kgsl_irq_handler, irqflags,
+				  device->name, device);
 
 	if (status) {
 		KGSL_DRV_ERR(device, "request_irq(%d) failed: %d\n",
