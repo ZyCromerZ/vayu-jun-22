@@ -1,0 +1,30 @@
+TAGSS="LA.UM.9.1.r1-11200-SMxxx0.0"
+
+initial-qcacld(){
+    git fetch https://source.codeaurora.org/quic/la/platform/vendor/qcom-opensource/wlan/$1 $2
+    git merge -s ours --no-commit --allow-unrelated-histories FETCH_HEAD
+    git read-tree --prefix=drivers/staging/$1 -u FETCH_HEAD
+    git commit -s
+}
+initial-qcacld qcacld-3.0 $TAGSS && \
+initial-qcacld fw-api $TAGSS && \
+initial-qcacld qca-wifi-host-cmn $TAGSS
+
+upstream-qcacld(){
+    git fetch https://source.codeaurora.org/quic/la/platform/vendor/qcom-opensource/wlan/$1 $2
+    git merge -X subtree=drivers/staging/$1 FETCH_HEAD --signoff
+}
+
+upstream-qcacld qcacld-3.0 $TAGSS && \
+upstream-qcacld fw-api $TAGSS && \
+upstream-qcacld qca-wifi-host-cmn $TAGSS
+
+
+
+
+git fetch https://source.codeaurora.org/quic/la/platform/vendor/qcom-opensource/data-kernel $TAGSS && \
+git merge -X subtree=techpack/data FETCH_HEAD --signoff
+
+git fetch https://source.codeaurora.org/quic/la/platform/vendor/opensource/audio-kernel $TAGSS && \
+git merge -X subtree=techpack/audio FETCH_HEAD --signoff
+
