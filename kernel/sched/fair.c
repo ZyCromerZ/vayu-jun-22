@@ -90,8 +90,8 @@ walt_dec_cfs_rq_stats(struct cfs_rq *cfs_rq, struct task_struct *p) {}
  * (default: 5ms * (1 + ilog(ncpus)), units: nanoseconds)
  */
 #ifdef CONFIG_ZEN_INTERACTIVE
-unsigned int sysctl_sched_latency			= 10000000ULL;
-static unsigned int normalized_sysctl_sched_latency	= 10000000ULL;
+unsigned int sysctl_sched_latency			= 4000000ULL;
+static unsigned int normalized_sysctl_sched_latency	= 4000000ULL;
 #else
 unsigned int sysctl_sched_latency			= 5000000ULL;
 unsigned int normalized_sysctl_sched_latency		= 5000000ULL;
@@ -125,8 +125,8 @@ enum sched_tunable_scaling sysctl_sched_tunable_scaling = SCHED_TUNABLESCALING_L
  * (default: 0.75 msec * (1 + ilog(ncpus)), units: nanoseconds)
  */
 #ifdef CONFIG_ZEN_INTERACTIVE
-unsigned int sysctl_sched_min_granularity			= 1666666ULL;
-static unsigned int normalized_sysctl_sched_min_granularity	= 1666666ULL;
+unsigned int sysctl_sched_min_granularity			= 500000ULL;
+static unsigned int normalized_sysctl_sched_min_granularity	= 500000ULL;
 #else
 unsigned int sysctl_sched_min_granularity		= 750000ULL;
 unsigned int normalized_sysctl_sched_min_granularity	= 750000ULL;
@@ -157,8 +157,8 @@ unsigned int sysctl_sched_child_runs_first __read_mostly;
  * (default: 1 msec * (1 + ilog(ncpus)), units: nanoseconds)
  */
 #ifdef CONFIG_ZEN_INTERACTIVE
-unsigned int sysctl_sched_wakeup_granularity			= 5000000UL;
-static unsigned int normalized_sysctl_sched_wakeup_granularity	= 5000000UL;
+unsigned int sysctl_sched_wakeup_granularity			= 2000000UL;
+static unsigned int normalized_sysctl_sched_wakeup_granularity	= 2000000UL;
 
 const_debug unsigned int sysctl_sched_migration_cost	= 5000000UL;
 #else
