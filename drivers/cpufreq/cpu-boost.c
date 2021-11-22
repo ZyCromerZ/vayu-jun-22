@@ -234,6 +234,9 @@ static void cpuboost_input_event(struct input_handle *handle,
 	if (!input_boost_enabled)
 		return;
 
+	if (!input_boost_ms)
+		return;
+
 	now = ktime_to_us(ktime_get());
 	if (now - last_input_time < MIN_INPUT_INTERVAL)
 		return;
@@ -250,6 +253,9 @@ void touch_irq_boost(void)
 	u64 now;
 
 	if (!input_boost_enabled)
+		return;
+
+	if (!input_boost_ms)
 		return;
 
 	now = ktime_to_us(ktime_get());
