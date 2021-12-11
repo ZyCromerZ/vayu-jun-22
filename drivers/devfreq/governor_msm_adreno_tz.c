@@ -63,7 +63,7 @@ static DEFINE_SPINLOCK(suspend_lock);
 #define TAG "msm_adreno_tz: "
 
 #if 1
-static unsigned int adrenoboost = 1;
+static unsigned int adrenoboost = 2;
 #endif
 
 
@@ -386,7 +386,7 @@ static int lvl_divider_map_3[] = {10,1,1,1,1,15,13    ,1,1};
 
 #endif
 
-static int uci_adrenoboost = 1;
+static int uci_adrenoboost = 2;
 #ifdef CONFIG_UCI
 // register user uci listener
 void uci_user_listener(void) {
