@@ -1476,6 +1476,15 @@ static int __init read_max_fps(char *s)
 }
 __setup("dfps.max_fps=", read_max_fps);
 
+unsigned int __read_mostly skip_fps = 0;
+static int __init read_max_fps(char *s)
+{
+	if (s)
+		skip_fps = simple_strtoul(s, NULL, 0);
+	return 1;
+}
+__setup("dfps.skip_fps=", read_skip_fps);
+
 static int dsi_panel_parse_dfps_caps(struct dsi_panel *panel)
 {
 	int rc = 0;
@@ -1558,6 +1567,10 @@ static int dsi_panel_parse_dfps_caps(struct dsi_panel *panel)
 	/* calculate max and min fps */
 	dfps_caps->max_refresh_rate = dfps_caps->dfps_list[0];
 	dfps_caps->min_refresh_rate = dfps_caps->dfps_list[0];
+
+	if (skip_fps) {
+		dfps_caps->dfps_list_len = dfps_caps->dfps_list_len - skip_fps;
+	}
 
 	for (i = 1; i < dfps_caps->dfps_list_len; i++) {
 		if (dfps_caps->dfps_list[i] < dfps_caps->min_refresh_rate)
