@@ -1477,13 +1477,28 @@ static int __init read_max_fps(char *s)
 __setup("dfps.max_fps=", read_max_fps);
 
 unsigned int __read_mostly skip_fps = 0;
-static int __init read_max_fps(char *s)
+static int __init read_skip_fps(char *s)
 {
 	if (s)
 		skip_fps = simple_strtoul(s, NULL, 0);
 	return 1;
 }
 __setup("dfps.skip_fps=", read_skip_fps);
+
+bool __read_mostly dynamic_fps = 1;
+static int __init read_dynamic_fps(char *s)
+{
+	int getVal = 0;
+	if (s)
+		getVal = simple_strtoul(s, NULL, 0);
+
+	if (getVal > 0)
+		dynamic_fps = true;
+	else
+		dynamic_fps = false;
+	return 1;
+}
+__setup("dfps.dynamic_fps=", read_dynamic_fps);
 
 static int dsi_panel_parse_dfps_caps(struct dsi_panel *panel)
 {
@@ -1498,7 +1513,7 @@ static int dsi_panel_parse_dfps_caps(struct dsi_panel *panel)
 	supported = utils->read_bool(utils->data,
 			"qcom,mdss-dsi-pan-enable-dynamic-fps");
 
-	if (!supported) {
+	if (!supported || !dynamic_fps) {
 		pr_debug("[%s] DFPS is not supported\n", name);
 		dfps_caps->dfps_support = false;
 		return rc;
