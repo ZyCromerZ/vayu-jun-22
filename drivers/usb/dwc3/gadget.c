@@ -1195,7 +1195,7 @@ static void __dwc3_prepare_one_trb(struct dwc3_ep *dep, struct dwc3_trb *trb,
 	 * controller to observe the HWO bit set prematurely.
 	 * Add a write memory barrier to prevent CPU re-ordering.
 	 */
-	wmb();
+	mb();
 	trb->ctrl |= DWC3_TRB_CTRL_HWO;
 
 	dwc3_ep_inc_enq(dep);
