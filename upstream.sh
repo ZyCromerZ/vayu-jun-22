@@ -1,9 +1,9 @@
 for asu in 20210824/neutrino-phantasm-254-A 20210824/neutrino-phantasm-254-B
 do
     git checkout $asu
-    git pull . 20210824/neutrino-phantasm-254 --signoff || abort
-    git pull . 20210824/neutrino-phantasm-254-upstream --signoff || abort
-    [[ "$asu" == "20210824/neutrino-phantasm-254-A" ]] && git pull . 20210824/neutrino-phantasm-254-upstream-caf --signoff || abort
+    git pull . 20210824/neutrino-phantasm-254 --signoff || break
+    git pull . 20210824/neutrino-phantasm-254-upstream --signoff || break
+    [[ "$asu" == "20210824/neutrino-phantasm-254-A" ]] && git pull . 20210824/neutrino-phantasm-254-upstream-caf --signoff || break
     git checkout ${asu}-muv && git reset --hard HEAD~1 && git pull . $asu --no-commit && git commit -sm "Merge latest changes from $asu"
     git checkout ${asu}-muv-oc && git reset --hard HEAD~1 && git pull . $asu --no-commit && git commit -sm "Merge latest changes from $asu"
     git checkout ${asu}-muv-uc && git reset --hard HEAD~1 && git pull . $asu --no-commit && git commit -sm "Merge latest changes from $asu"
