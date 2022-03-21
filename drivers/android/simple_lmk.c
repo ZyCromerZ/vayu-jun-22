@@ -14,6 +14,11 @@
 #include <uapi/linux/sched/types.h>
 #include <linux/module.h>
 
+#undef pr_info
+#define pr_info(x, ...)
+#undef pr_err
+#define pr_err(x, ...)
+
 /* The minimum number of pages to free per reclaim */
 // #define (MIN_FREE_PAGES * SZ_1M / PAGE_SIZE) (CONFIG_ANDROID_SIMPLE_LMK_MINFREE * SZ_1M / PAGE_SIZE)
 int min_free_pages = CONFIG_ANDROID_SIMPLE_LMK_MINFREE;

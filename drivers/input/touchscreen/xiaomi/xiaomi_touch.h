@@ -36,6 +36,11 @@ extern int mi_log_level;
 #define 	TOUCH_DEBUG    3
 
 
+#undef pr_info
+#define pr_info(x, ...)
+#undef pr_err
+#define pr_err(x, ...)
+
 #define MI_TOUCH_LOGD(level, fmt, args...) \
 do { \
 	if (mi_log_level == TOUCH_DEBUG && level == 1) \
