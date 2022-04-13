@@ -1,0 +1,22 @@
+
+git fetch origin 20210824/neutrino-phantasm-254-upCAF-muv
+git fetch origin 20210824/neutrino-phantasm-254-upCAF-muv-oc
+git fetch origin 20210824/neutrino-phantasm-254-upCAF-muv-uc
+git fetch origin 20210824/neutrino-phantasm-254-upCAF-stock
+git fetch origin 20210824/neutrino-phantasm-254-upCAF-stock-oc
+git fetch origin 20210824/neutrino-phantasm-254-upCAF-stock-uc
+git fetch origin 20210824/neutrino-phantasm-254-upCAF-uv
+git fetch origin 20210824/neutrino-phantasm-254-upCAF-uv-oc
+git fetch origin 20210824/neutrino-phantasm-254-upCAF-uv-uc
+
+SetBranch=20210824/neutrino-phantasm-254-A
+
+git checkout ${SetBranch} && git checkout -b ${SetBranch}-muv && git cherry-pick 2c1f58cf8206eeda5e98cb2837373152640c9995 97df841644c5dee3432f5e8857c5140e2cb582c4 && \
+git checkout ${SetBranch} && git checkout -b ${SetBranch}-muv-oc && git cherry-pick fdae94859ef8b209d03c708787503a587614c1d2 && git cherry-pick fdae94859ef8b209d03c708787503a587614c1d2..badf7e1e309eb03347a931b948e1b9bfe95c2c11 && \
+git checkout ${SetBranch} && git checkout -b ${SetBranch}-muv-uc && git cherry-pick fdae94859ef8b209d03c708787503a587614c1d2 && git cherry-pick fdae94859ef8b209d03c708787503a587614c1d2..6cded9f66c7cc359228da216ebe61a80f5317054 && \
+git checkout ${SetBranch} && git checkout -b ${SetBranch}-stock && git cherry-pick fb03f2b38dc9efe8467f5e2b4f19228bf64a6eb2 6e6a4ae2c8de37d5c688f20dbfb6a08fbaf90845 && \
+git checkout ${SetBranch} && git checkout -b ${SetBranch}-stock-oc && git cherry-pick fb03f2b38dc9efe8467f5e2b4f19228bf64a6eb2 && git cherry-pick fb03f2b38dc9efe8467f5e2b4f19228bf64a6eb2..d89a4ada68fe506cb74176677252d59f8e774e8d && \
+git checkout ${SetBranch} && git checkout -b ${SetBranch}-stock-uc && git cherry-pick fb03f2b38dc9efe8467f5e2b4f19228bf64a6eb2 && git cherry-pick fb03f2b38dc9efe8467f5e2b4f19228bf64a6eb2..9832eef1c502770d4c9bbdbc32f75dbf839007fd && \
+git checkout ${SetBranch} && git checkout -b ${SetBranch}-uv && git cherry-pick 2c1f58cf8206eeda5e98cb2837373152640c9995 && \
+git checkout ${SetBranch} && git checkout -b ${SetBranch}-uv-oc && git cherry-pick fdae94859ef8b209d03c708787503a587614c1d2 && git cherry-pick fdae94859ef8b209d03c708787503a587614c1d2..a3396c69065b5943d2fa5721d223bd5be3a572df && \
+git checkout ${SetBranch} && git checkout -b ${SetBranch}-uv-uc && git cherry-pick fdae94859ef8b209d03c708787503a587614c1d2 && git cherry-pick fdae94859ef8b209d03c708787503a587614c1d2..c7971f0359cd5a6046818794f159c9d8ea9135a1

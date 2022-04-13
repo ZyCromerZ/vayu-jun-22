@@ -118,7 +118,7 @@ error:
 	return -EINVAL;
 }
 
-static int debug_mask;
+static int debug_mask = 0;
 module_param(debug_mask, int, 0644);
 MODULE_PARM_DESC(debug_mask, "Control data packet IPC logging");
 

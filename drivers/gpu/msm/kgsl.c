@@ -35,6 +35,7 @@
 #include <asm/cacheflush.h>
 #include <uapi/linux/sched/types.h>
 #include <soc/qcom/boot_stats.h>
+#include <misc/zyc_gpu.h>
 
 #include "kgsl.h"
 #include "kgsl_debugfs.h"
@@ -999,7 +1000,7 @@ struct kgsl_process_private *kgsl_process_private_find(pid_t pid)
 {
 	struct kgsl_process_private *p, *private = NULL;
 
-	mutex_lock(&kgsl_driver.process_mutex);
+	spin_lock(&kgsl_driver.proclist_lock);
 	list_for_each_entry(p, &kgsl_driver.process_list, list) {
 		if (pid_nr(p->pid) == pid) {
 			if (kgsl_process_private_get(p))
@@ -1007,7 +1008,7 @@ struct kgsl_process_private *kgsl_process_private_find(pid_t pid)
 			break;
 		}
 	}
-	mutex_unlock(&kgsl_driver.process_mutex);
+	spin_unlock(&kgsl_driver.proclist_lock);
 	return private;
 }
 
@@ -1124,7 +1125,9 @@ static void kgsl_process_private_close(struct kgsl_device_private *dev_priv,
 		kgsl_mmu_detach_pagetable(private->pagetable);
 
 	/* Remove the process struct from the master list */
+	spin_lock(&kgsl_driver.proclist_lock);
 	list_del(&private->list);
+	spin_unlock(&kgsl_driver.proclist_lock);
 
 	/*
 	 * Unlock the mutex before releasing the memory and the debugfs
@@ -1160,7 +1163,9 @@ static struct kgsl_process_private *kgsl_process_private_open(
 		kgsl_process_init_sysfs(device, private);
 		kgsl_process_init_debugfs(private);
 
+		spin_lock(&kgsl_driver.proclist_lock);
 		list_add(&private->list, &kgsl_driver.process_list);
+		spin_unlock(&kgsl_driver.proclist_lock);
 	}
 
 done:
@@ -1173,16 +1178,41 @@ static int kgsl_close_device(struct kgsl_device *device)
 	int result = 0;
 
 	mutex_lock(&device->mutex);
-	device->open_count--;
-	if (device->open_count == 0) {
+	if (&use_backport_option) {
+		if (device->open_count == 1) {
 
-		/* Wait for the active count to go to 0 */
-		kgsl_active_count_wait(device, 0);
+			/* Wait for the active count to go to 0 */
+			kgsl_active_count_wait(device, 0);
 
-		while (kgsl_active_count_wait(device, 0))
-			WARN(1, "Waiting for active context count to become 0\n");
+			while (kgsl_active_count_wait(device, 0))
+				WARN(1, "Waiting for active context count to become 0\n");
 
-		result = kgsl_pwrctrl_change_state(device, KGSL_STATE_INIT);
+			result = kgsl_pwrctrl_change_state(device, KGSL_STATE_INIT);
+		}
+
+		/*
+		* We must decrement the open_count after last_close() has finished.
+		* This is because last_close() relinquishes device mutex while
+		* waiting for active count to become 0. This opens up a window
+		* where a new process can come in, see that open_count is 0, and
+		* initiate a first_open(). This can potentially mess up the power
+		* state machine. To avoid a first_open() from happening before
+		* last_close() has finished, decrement the open_count after
+		* last_close().
+		*/
+		device->open_count--;
+	} else {
+		device->open_count--;
+		if (device->open_count == 0) {
+
+			/* Wait for the active count to go to 0 */
+			kgsl_active_count_wait(device, 0);
+
+			while (kgsl_active_count_wait(device, 0))
+				WARN(1, "Waiting for active context count to become 0\n");
+
+			result = kgsl_pwrctrl_change_state(device, KGSL_STATE_INIT);
+		}
 	}
 	mutex_unlock(&device->mutex);
 	return result;
@@ -1364,8 +1394,15 @@ kgsl_sharedmem_find(struct kgsl_process_private *private, uint64_t gpuaddr)
 	if (!private)
 		return NULL;
 
-	if (!kgsl_mmu_gpuaddr_in_range(private->pagetable, gpuaddr))
-		return NULL;
+	if (&use_backport_option) {
+		if (!kgsl_mmu_gpuaddr_in_range(private->pagetable, gpuaddr) &&
+			!kgsl_mmu_gpuaddr_in_range(
+				private->pagetable->mmu->securepagetable, gpuaddr))
+			return NULL;
+	} else {
+		if (!kgsl_mmu_gpuaddr_in_range(private->pagetable, gpuaddr))
+			return NULL;
+	}
 
 	spin_lock(&private->mem_lock);
 	idr_for_each_entry(&private->mem_idr, entry, id) {
@@ -4855,6 +4892,7 @@ static const struct file_operations kgsl_fops = {
 
 struct kgsl_driver kgsl_driver  = {
 	.process_mutex = __MUTEX_INITIALIZER(kgsl_driver.process_mutex),
+	.proclist_lock = __SPIN_LOCK_UNLOCKED(kgsl_driver.proclist_lock),
 	.ptlock = __SPIN_LOCK_UNLOCKED(kgsl_driver.ptlock),
 	.devlock = __MUTEX_INITIALIZER(kgsl_driver.devlock),
 	/*
@@ -5079,24 +5117,8 @@ int kgsl_device_platform_probe(struct kgsl_device *device)
 				PM_QOS_CPU_DMA_LATENCY,
 				PM_QOS_DEFAULT_VALUE);
 
-	if (device->pwrctrl.l2pc_cpus_mask) {
-		struct pm_qos_request *qos = &device->pwrctrl.l2pc_cpus_qos;
-
-		qos->type = PM_QOS_REQ_AFFINE_CORES;
-
-		cpumask_empty(&qos->cpus_affine);
-		for_each_possible_cpu(cpu) {
-			if ((1 << cpu) & device->pwrctrl.l2pc_cpus_mask)
-				cpumask_set_cpu(cpu, &qos->cpus_affine);
-		}
-
-		pm_qos_add_request(&device->pwrctrl.l2pc_cpus_qos,
-				PM_QOS_CPU_DMA_LATENCY,
-				PM_QOS_DEFAULT_VALUE);
-	}
-
 	device->events_wq = alloc_workqueue("kgsl-events",
-		WQ_UNBOUND | WQ_MEM_RECLAIM | WQ_SYSFS, 0);
+		WQ_UNBOUND | WQ_MEM_RECLAIM | WQ_SYSFS | WQ_HIGHPRI, 0);
 
 	/* Initialize the snapshot engine */
 	kgsl_device_snapshot_init(device);
@@ -5131,8 +5153,6 @@ void kgsl_device_platform_remove(struct kgsl_device *device)
 	kgsl_pwrctrl_uninit_sysfs(device);
 
 	pm_qos_remove_request(&device->pwrctrl.pm_qos_req_dma);
-	if (device->pwrctrl.l2pc_cpus_mask)
-		pm_qos_remove_request(&device->pwrctrl.l2pc_cpus_qos);
 
 	idr_destroy(&device->context_idr);
 
@@ -5242,10 +5262,10 @@ static int __init kgsl_core_init(void)
 	INIT_LIST_HEAD(&kgsl_driver.pagetable_list);
 
 	kgsl_driver.workqueue = alloc_workqueue("kgsl-workqueue",
-		WQ_UNBOUND | WQ_MEM_RECLAIM | WQ_SYSFS, 0);
+		WQ_HIGHPRI | WQ_UNBOUND | WQ_MEM_RECLAIM | WQ_SYSFS, 0);
 
 	kgsl_driver.mem_workqueue = alloc_workqueue("kgsl-mementry",
-		WQ_UNBOUND | WQ_MEM_RECLAIM, 0);
+		WQ_UNBOUND | WQ_MEM_RECLAIM | WQ_FREEZABLE, 0);
 
 	kthread_init_worker(&kgsl_driver.worker);
 
@@ -5257,7 +5277,7 @@ static int __init kgsl_core_init(void)
 		goto err;
 	}
 
-	sched_setscheduler(kgsl_driver.worker_thread, SCHED_FIFO, &param);
+	sched_setscheduler(kgsl_driver.worker_thread, SCHED_RR, &param);
 
 	kgsl_events_init();
 

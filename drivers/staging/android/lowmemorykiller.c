@@ -64,6 +64,9 @@
 #define CREATE_TRACE_POINTS
 #include "trace/lowmemorykiller.h"
 
+#undef pr_info
+#define pr_info(x, ...)
+
 /* to enable lowmemorykiller */
 static int enable_lmk = 1;
 module_param_named(enable_lmk, enable_lmk, int, 0644);
@@ -89,11 +92,7 @@ static int lmk_fast_run = 1;
 
 static unsigned long lowmem_deathpending_timeout;
 
-#define lowmem_print(level, x...)			\
-	do {						\
-		if (lowmem_debug_level >= (level))	\
-			pr_info(x);			\
-	} while (0)
+#define lowmem_print(level, x...)
 
 static unsigned long lowmem_count(struct shrinker *s,
 				  struct shrink_control *sc)

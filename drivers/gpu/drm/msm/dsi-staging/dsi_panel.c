@@ -1476,6 +1476,30 @@ static int __init read_max_fps(char *s)
 }
 __setup("dfps.max_fps=", read_max_fps);
 
+unsigned int __read_mostly skip_fps = 0;
+static int __init read_skip_fps(char *s)
+{
+	if (s)
+		skip_fps = simple_strtoul(s, NULL, 0);
+	return 1;
+}
+__setup("dfps.skip_fps=", read_skip_fps);
+
+bool __read_mostly dynamic_fps = 1;
+static int __init read_dynamic_fps(char *s)
+{
+	int getVal = 0;
+	if (s)
+		getVal = simple_strtoul(s, NULL, 0);
+
+	if (getVal > 0)
+		dynamic_fps = true;
+	else
+		dynamic_fps = false;
+	return 1;
+}
+__setup("dfps.dynamic_fps=", read_dynamic_fps);
+
 static int dsi_panel_parse_dfps_caps(struct dsi_panel *panel)
 {
 	int rc = 0;
@@ -1489,7 +1513,7 @@ static int dsi_panel_parse_dfps_caps(struct dsi_panel *panel)
 	supported = utils->read_bool(utils->data,
 			"qcom,mdss-dsi-pan-enable-dynamic-fps");
 
-	if (!supported) {
+	if (!supported || !dynamic_fps) {
 		pr_debug("[%s] DFPS is not supported\n", name);
 		dfps_caps->dfps_support = false;
 		return rc;
@@ -1558,6 +1582,10 @@ static int dsi_panel_parse_dfps_caps(struct dsi_panel *panel)
 	/* calculate max and min fps */
 	dfps_caps->max_refresh_rate = dfps_caps->dfps_list[0];
 	dfps_caps->min_refresh_rate = dfps_caps->dfps_list[0];
+
+	if (skip_fps) {
+		dfps_caps->dfps_list_len = dfps_caps->dfps_list_len - skip_fps;
+	}
 
 	for (i = 1; i < dfps_caps->dfps_list_len; i++) {
 		if (dfps_caps->dfps_list[i] < dfps_caps->min_refresh_rate)
@@ -1809,6 +1837,7 @@ static int dsi_panel_parse_phy_props(struct dsi_panel *panel)
 error:
 	return rc;
 }
+
 const char *cmd_set_prop_map[DSI_CMD_SET_MAX] = {
 	"qcom,mdss-dsi-pre-on-command",
 	"qcom,mdss-dsi-on-command",
@@ -1887,6 +1916,10 @@ const char *cmd_set_prop_map[DSI_CMD_SET_MAX] = {
 	"qcom,mdss-dsi-dispparam-crc-off-command",
 	"qcom,mdss-dsi-dispparam-elvss-dimming-off-command",
 	"mi,mdss-dsi-read-lockdown-info-command",
+	"qcom,mdss-dsi-dispparam-cabcuion-command",
+	"qcom,mdss-dsi-dispparam-cabcstillon-command",
+	"qcom,mdss-dsi-dispparam-cabcmovieon-command",
+	"qcom,mdss-dsi-dispparam-cabcoff-command",
 };
 
 const char *cmd_set_state_map[DSI_CMD_SET_MAX] = {
@@ -1967,6 +2000,10 @@ const char *cmd_set_state_map[DSI_CMD_SET_MAX] = {
 	"qcom,mdss-dsi-dispparam-crc-off-command-state",
 	"qcom,mdss-dsi-dispparam-elvss-dimming-off-command-state",
 	"mi,mdss-dsi-read-lockdown-info-command-state",
+	"qcom,mdss-dsi-dispparam-cabcuion-command-state",
+	"qcom,mdss-dsi-dispparam-cabcstillon-command-state",
+	"qcom,mdss-dsi-dispparam-cabcmovieon-command-state",
+	"qcom,mdss-dsi-dispparam-cabcoff-command-state",
 };
 
 static int dsi_panel_get_cmd_pkt_count(const char *data, u32 length, u32 *cnt)
@@ -4522,6 +4559,13 @@ int dsi_panel_enable(struct dsi_panel *panel)
 	else
 		panel->panel_initialized = true;
 	mutex_unlock(&panel->panel_lock);
+
+	if (panel->hbm_mode)
+		dsi_panel_apply_hbm_mode(panel);
+
+	if (panel->cabc_mode)
+		dsi_panel_apply_cabc_mode(panel);
+
 	return rc;
 }
 
@@ -4896,3 +4940,52 @@ void dsi_panel_doubleclick_enable(bool on)
 	g_panel->tddi_doubleclick_flag = on;
 }
 EXPORT_SYMBOL(dsi_panel_doubleclick_enable);
+
+int dsi_panel_apply_hbm_mode(struct dsi_panel *panel)
+{
+	static const enum dsi_cmd_set_type type_map[] = {
+		DSI_CMD_SET_DISP_LCD_HBM_OFF,
+		DSI_CMD_SET_DISP_LCD_HBM_L1_ON,
+		DSI_CMD_SET_DISP_LCD_HBM_L2_ON
+	};
+
+	enum dsi_cmd_set_type type;
+	int rc;
+
+	if (panel->hbm_mode >= 0 &&
+		panel->hbm_mode < ARRAY_SIZE(type_map))
+		type = type_map[panel->hbm_mode];
+	else
+		type = type_map[0];
+
+	mutex_lock(&panel->panel_lock);
+	rc = dsi_panel_tx_cmd_set(panel, type);
+	mutex_unlock(&panel->panel_lock);
+
+	return rc;
+}
+
+int dsi_panel_apply_cabc_mode(struct dsi_panel *panel)
+{
+	static const enum dsi_cmd_set_type type_map[] = {
+		DSI_CMD_SET_DISP_CABC_OFF,
+		DSI_CMD_SET_DISP_CABC_UI_ON,
+		DSI_CMD_SET_DISP_CABC_STILL_ON,
+		DSI_CMD_SET_DISP_CABC_MOVIE_ON
+	};
+
+	enum dsi_cmd_set_type type;
+	int rc;
+
+	if (panel->cabc_mode >= 0 &&
+		panel->cabc_mode < ARRAY_SIZE(type_map))
+		type = type_map[panel->cabc_mode];
+	else
+		type = type_map[0];
+
+	mutex_lock(&panel->panel_lock);
+	rc = dsi_panel_tx_cmd_set(panel, type);
+	mutex_unlock(&panel->panel_lock);
+
+	return rc;
+}
