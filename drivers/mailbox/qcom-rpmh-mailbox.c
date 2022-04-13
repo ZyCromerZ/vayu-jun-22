@@ -91,6 +91,15 @@
 #define MAX_POOL_SIZE			(MAX_TCS_PER_TYPE * TCS_TYPE_NR)
 #define TCS_M_INIT			0xFFFF
 
+#undef dev_err
+#define dev_err(x, ...)
+#undef pr_debug
+#define pr_debug(x, ...)
+#undef pr_err
+#define pr_err(x, ...)
+#undef pr_warn
+#define pr_warn(x, ...)
+
 struct rsc_drv;
 
 struct tcs_response {
@@ -1015,8 +1024,8 @@ tx_fail:
 
 	/* If we were just busy waiting for TCS, dump the state and return */
 	if (ret == -EBUSY) {
-		dev_err_ratelimited(chan->cl->dev,
-				"TCS Busy, retrying RPMH message send\n");
+		// dev_err_ratelimited(chan->cl->dev,
+		// 		"TCS Busy, retrying RPMH message send\n");
 		ret = -EAGAIN;
 	}
 

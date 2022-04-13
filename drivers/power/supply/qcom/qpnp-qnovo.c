@@ -191,7 +191,7 @@ struct qnovo {
 	struct delayed_work	ptrain_restart_work;
 };
 
-static int debug_mask;
+static int debug_mask = 0;
 module_param_named(debug_mask, debug_mask, int, 0600);
 
 #define qnovo_dbg(chip, reason, fmt, ...)				\

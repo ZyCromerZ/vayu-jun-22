@@ -65,6 +65,8 @@ static struct workqueue_struct *nvt_esd_check_wq;
 static unsigned long irq_timer = 0;
 uint8_t esd_check = false;
 uint8_t esd_retry = 0;
+static int esd_check_force = 0;
+static int esd_check_scale = 8;
 #endif /* #if NVT_TOUCH_ESD_PROTECT */
 
 #if NVT_TOUCH_EXT_PROC
@@ -101,7 +103,9 @@ extern void dsi_panel_doubleclick_enable(bool on);
 #ifdef CONFIG_TOUCHSCREEN_XIAOMI_TOUCHFEATURE
 static int32_t nvt_check_palm(uint8_t input_id, uint8_t *data);
 #endif
+#ifdef CONFIG_CPU_BOOST
 extern void touch_irq_boost(void);
+#endif
 extern void lpm_disable_for_input(bool on);
 uint32_t ENG_RST_ADDR  = 0x7FFF80;
 uint32_t SWRST_N8_ADDR = 0; /* read from dtsi */
@@ -1146,6 +1150,7 @@ static bool nvt_cmds_panel_info(void)
 		if (!strncmp(display_node, "dsi_j20s_36_02_0a_video_display",
 					strlen("dsi_j20s_36_02_0a_video_display"))) {
 			panel_id = true;
+			panel_is_tianma = 1;
 		}
 	}
 	return panel_id;
@@ -1286,8 +1291,10 @@ bool nvt_get_dbgfw_status(void)
 }
 
 #if NVT_TOUCH_ESD_PROTECT
+module_param_named(esd_check_force, esd_check_force, int, 0664);
 void nvt_esd_check_enable(uint8_t enable)
 {
+	enable = esd_check_force;
 	/* update interrupt timer */
 	irq_timer = jiffies;
 	/* clear esd_retry counter, if protect function is enabled */
@@ -1312,11 +1319,18 @@ static uint8_t nvt_fw_recovery(uint8_t *point_data)
 	return detected;
 }
 
+module_param_named(esd_check_scale, esd_check_scale, int, 0664);
 static void nvt_esd_check_func(struct work_struct *work)
 {
 	unsigned int timer = jiffies_to_msecs(jiffies - irq_timer);
 
-	if ((timer > NVT_TOUCH_ESD_CHECK_PERIOD) && esd_check) {
+	if (esd_check_scale > 24)
+		esd_check_scale = 24;
+	if (esd_check_scale < 4)
+		esd_check_scale = 4;
+
+	if ((timer > esd_check_scale * NVT_TOUCH_ESD_CHECK_PERIOD + 50)
+		&& (timer < 2 * esd_check_scale * NVT_TOUCH_ESD_CHECK_PERIOD - 50) && esd_check) {
 		mutex_lock(&ts->lock);
 		NVT_LOG("do ESD recovery, timer = %d, retry = %d\n", timer, esd_retry);
 		/* do esd recovery, reload fw */
@@ -1438,8 +1452,10 @@ static irqreturn_t nvt_ts_work_func(int irq, void *data)
 		pm_wakeup_event(&ts->input_dev->dev, 5000);
 	}
 #endif
+#ifdef CONFIG_CPU_BOOST
 	if (ts->debug_flag == TOUCH_IRQ_BOOST)
 		touch_irq_boost();
+#endif
 	mutex_lock(&ts->lock);
 	if (ts->debug_flag >= TOUCH_DISABLE_LPM)
 		lpm_disable_for_input(true);
@@ -2660,6 +2676,7 @@ static int32_t nvt_ts_probe(struct platform_device *pdev)
 		debugfs_create_file("touch_boost", 0660, ts->debugfs, ts, &nvt_touch_test_fops);
 	}
 #endif
+	nvt_cmds_panel_info();
 #ifdef CONFIG_TOUCHSCREEN_XIAOMI_TOUCHFEATURE
 			xiaomi_touch_interfaces.touch_vendor_read = nvt_touch_vendor_read;
 			xiaomi_touch_interfaces.panel_display_read = nvt_panel_display_read;
@@ -2940,6 +2957,11 @@ static int32_t nvt_ts_suspend(struct device *dev)
 	} else {
 		/* ---write command to enter "deep sleep mode"--- */
 		buf[0] = EVENT_MAP_HOST_CMD;
+		buf[1] = 0x11;
+		CTP_SPI_WRITE(ts->client, buf, 2);
+
+		nvt_set_page(0x11a50);
+		buf[0] = 0x11a50 & 0xff;
 		buf[1] = 0x11;
 		CTP_SPI_WRITE(ts->client, buf, 2);
 		if (ts->ts_pinctrl) {
@@ -3281,5 +3303,6 @@ static void __exit nvt_driver_exit(void)
 }
 late_initcall(nvt_driver_init);
 
+module_param_named(touch_fw_override, touch_fw_override, int, 0664);
 MODULE_DESCRIPTION("Novatek Touchscreen Driver");
 MODULE_LICENSE("GPL");

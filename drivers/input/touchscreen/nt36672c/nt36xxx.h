@@ -51,7 +51,9 @@
 #define PINCTRL_STATE_RELEASE		"pmx_ts_release"
 
 #define TOUCH_DISABLE_LPM 1
+#ifdef CONFIG_CPU_BOOST
 #define TOUCH_IRQ_BOOST 2
+#endif
 
 /* ---GPIO number--- */
 #define NVTTOUCH_RST_PIN 980
@@ -66,8 +68,8 @@
 
 /* ---SPI driver info.--- */
 #define NVT_SPI_NAME "NVT-ts-spi"
-#define NVT_LOG(fmt, args...)	pr_info("[%s] %s %d: " fmt, NVT_SPI_NAME, __func__, __LINE__, ##args)
-#define NVT_ERR(fmt, args...)	pr_err("[%s] %s %d: " fmt, NVT_SPI_NAME, __func__, __LINE__, ##args)
+#define NVT_LOG(fmt, args...)
+#define NVT_ERR(fmt, args...)
 
 /* ---Input device info.--- */
 #define NVT_TS_NAME "NVTCapacitiveTouchScreen"
@@ -102,10 +104,11 @@
 #define DEFAULT_DEBUG_FW_NAME "novatek_debug_fw.bin"
 #define DEFAULT_DEBUG_MP_NAME "novatek_debug_mp.bin"
 
+extern int touch_fw_override;
 
 /* ---ESD Protect.--- */
 #define NVT_TOUCH_ESD_PROTECT 1
-#define NVT_TOUCH_ESD_CHECK_PERIOD 1500	/* ms */
+#define NVT_TOUCH_ESD_CHECK_PERIOD 125		/* ms */
 #define NVT_TOUCH_WDT_RECOVERY 1
 #define NVT_TOUCH_ESD_DISP_RECOVERY 1
 
@@ -269,4 +272,5 @@ int32_t nvt_set_pocket_palm_switch(uint8_t pocket_palm_switch);
 #if NVT_TOUCH_ESD_PROTECT
 extern void nvt_esd_check_enable(uint8_t enable);
 #endif /* #if NVT_TOUCH_ESD_PROTECT */
+extern int panel_is_tianma;
 #endif /* _LINUX_NVT_TOUCH_H */
