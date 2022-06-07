@@ -1,4 +1,4 @@
-TAGSS="LA.UM.9.1.r1-11800-SMxxx0.0"
+TAGSS="LA.UM.9.1.r1-11900.02-SMxxx0.QSSI12.0"
 
 initial-qcacld(){
     git fetch https://source.codeaurora.org/quic/la/platform/vendor/qcom-opensource/wlan/$1 $2
@@ -27,14 +27,14 @@ git pull https://source.codeaurora.org/quic/la/kernel/msm-4.14 $TAGSS --signoff 
 
 
 upstream-qcacld(){
-    git fetch https://git.codelinaro.org/clo/la/platform/vendor/qcom-opensource/wlan/$1 $2
+    git fetch https://git.codelinaro.org/clo/la/platform/vendor/qcom-opensource/wlan/$1.git $2
     git merge -X subtree=drivers/staging/$1 FETCH_HEAD --signoff  --allow-unrelated-histories
 }
 upstream-qcacld qcacld-3.0 $TAGSS && \
 upstream-qcacld fw-api $TAGSS && \
 upstream-qcacld qca-wifi-host-cmn $TAGSS && \
-git fetch https://git.codelinaro.org/clo/la/platform/vendor/qcom-opensource/data-kernel $TAGSS && \
+git fetch https://git.codelinaro.org/clo/la/platform/vendor/qcom-opensource/data-kernel.git $TAGSS && \
 git merge -X subtree=techpack/data FETCH_HEAD --signoff  --allow-unrelated-histories && \
-git fetch https://git.codelinaro.org/clo/la/platform/vendor/opensource/audio-kernel/ $TAGSS && \
+git fetch https://git.codelinaro.org/clo/la/platform/vendor/opensource/audio-kernel.git $TAGSS && \
 git merge -X subtree=techpack/audio FETCH_HEAD --signoff  --allow-unrelated-histories && \
-git pull https://git.codelinaro.org/clo/la/kernel/msm-4.14 $TAGSS --signoff --allow-unrelated-histories
+git pull https://git.codelinaro.org/clo/la/kernel/msm-4.14.git $TAGSS --signoff --allow-unrelated-histories
