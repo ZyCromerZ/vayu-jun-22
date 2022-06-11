@@ -67,6 +67,6 @@ else
                                 CC="clang" \
                                 CROSS_COMPILE=aarch64-linux-android- \
                                 CROSS_COMPILE_ARM32=arm-linux-androideabi- \
-                                CLANG_TRIPLE=aarch64-linux-gnu-
-    [ -e ../../vayu/out/arch/arm64/boot/Image ] && [ -e ../../vayu/out/arch/arm64/boot/dtbo.img ] && MakeZip
+                                CLANG_TRIPLE=aarch64-linux-gnu- dtbo.img
+    # [ -e ../../vayu/out/arch/arm64/boot/Image ] && [ -e ../../vayu/out/arch/arm64/boot/dtbo.img ] && MakeZip
 fi
