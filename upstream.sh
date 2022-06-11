@@ -1,17 +1,21 @@
-for asu in 20210824/neutrino-phantasm-254-A 20210824/neutrino-phantasm-254-B
+for auah in 20220412/Flata 20220412/RutuF
 do
-    git checkout $asu
-    git pull . 20210824/neutrino-phantasm-254 --signoff || break
-    git pull . 20210824/neutrino-phantasm-254-upstream --signoff || break
-    [[ "$asu" == "20210824/neutrino-phantasm-254-A" ]] && git pull . 20210824/neutrino-phantasm-254-upstream-caf --signoff || break
-    git checkout ${asu}-muv && git reset --hard HEAD~1 && git pull . $asu --no-commit && git commit -sm "Merge latest changes from $asu"
-    git checkout ${asu}-muv-oc && git reset --hard HEAD~1 && git pull . $asu --no-commit && git commit -sm "Merge latest changes from $asu"
-    git checkout ${asu}-muv-uc && git reset --hard HEAD~1 && git pull . $asu --no-commit && git commit -sm "Merge latest changes from $asu"
-    git checkout ${asu}-stock && git reset --hard HEAD~1 && git pull . $asu --no-commit && git commit -sm "Merge latest changes from $asu"
-    git checkout ${asu}-stock-oc && git reset --hard HEAD~1 && git pull . $asu --no-commit && git commit -sm "Merge latest changes from $asu"
-    git checkout ${asu}-stock-uc && git reset --hard HEAD~1 && git pull . $asu --no-commit && git commit -sm "Merge latest changes from $asu"
-    git checkout ${asu}-uv && git reset --hard HEAD~1 && git pull . $asu --no-commit && git commit -sm "Merge latest changes from $asu"
-    git checkout ${asu}-uv-oc && git reset --hard HEAD~1 && git pull . $asu --no-commit && git commit -sm "Merge latest changes from $asu"
-    git checkout ${asu}-uv-uc && git reset --hard HEAD~1 && git pull . $asu --no-commit && git commit -sm "Merge latest changes from $asu"
+    git checkout $auah
+    if [[ "$auah" == "20220412/Flata" ]];then
+        git pull . 20220412/main-caf --signoff || break
+    fi
+    git pull . 20220412/main-f2fs --signoff || break
+    git pull . 20220412/main-upstream --signoff || break
+    git checkout ${auah}+
+    git pull . 20220412/main --signoff || break
+    if [[ "$auah" == "20220412/Flata" ]];then
+        git pull . 20220412/main-caf --signoff || break
+    fi
+    git pull . 20220412/main-f2fs --signoff || break
+    git pull . 20220412/main-upstream --signoff || break
+    for ezAf in ${auah}+-muv ${auah}+-muv-uc ${auah}+-muv-oc ${auah}+-stock ${auah}+-stock-uc ${auah}+-stock-oc ${auah}+-uv ${auah}+-uv-uc ${auah}+-uv-oc
+    do
+        git checkout "$ezAf"
+        git pull . ${auah}+ --signoff || break
+    done
 done
-git checkout 20210824/neutrino-phantasm-254
