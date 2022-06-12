@@ -22,6 +22,7 @@
 #include <linux/msm_adreno_devfreq.h>
 #include <linux/of_device.h>
 #include <linux/thermal.h>
+#include <misc/zyc_gpu.h>
 
 #include "kgsl.h"
 #include "kgsl_pwrscale.h"
@@ -594,8 +595,13 @@ static ssize_t kgsl_pwrctrl_thermal_pwrlevel_store(struct device *dev,
 
 	mutex_lock(&device->mutex);
 
-	if (level > pwr->num_pwrlevels - 2)
-		level = pwr->num_pwrlevels - 2;
+	if (&kgsl_thermal_limit){
+		if (level > pwr->num_pwrlevels - 2)
+			level = pwr->num_pwrlevels - 2;
+	} else {
+		if (level > pwr->num_pwrlevels - 1)
+			level = pwr->num_pwrlevels - 1;
+	}
 
 	pwr->thermal_pwrlevel = level;
 
@@ -673,8 +679,13 @@ static void kgsl_pwrctrl_min_pwrlevel_set(struct kgsl_device *device,
 	struct kgsl_pwrctrl *pwr = &device->pwrctrl;
 
 	mutex_lock(&device->mutex);
-	if (level > pwr->num_pwrlevels - 2)
-		level = pwr->num_pwrlevels - 2;
+	if (&kgsl_thermal_limit){
+		if (level > pwr->num_pwrlevels - 2)
+			level = pwr->num_pwrlevels - 2;
+	} else {
+		if (level > pwr->num_pwrlevels - 1)
+			level = pwr->num_pwrlevels - 1;
+	}
 
 	/* You can't set a minimum power level lower than the maximum */
 	if (level < pwr->max_pwrlevel)
