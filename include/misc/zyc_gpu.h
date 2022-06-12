@@ -16,3 +16,4 @@
 
 extern bool kgsl_old_check_gpuaddr;
 extern bool kgsl_old_close;
+extern bool kgsl_thermal_limit;
