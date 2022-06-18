@@ -64,8 +64,8 @@ static DEFINE_SPINLOCK(suspend_lock);
 #define TAG "msm_adreno_tz: "
 
 #if 1
-static unsigned int adrenoboost = 2;
-static int uci_adrenoboost = 2;
+static unsigned int adrenoboost = 3;
+static int uci_adrenoboost = 3;
 static int __init read_adrenoboost(char *s)
 {
 	if (s)
