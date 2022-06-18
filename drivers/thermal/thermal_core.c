@@ -78,6 +78,16 @@ static char boost_buf[128];
 const char *board_sensor;
 static char board_sensor_temp[128];
 
+int thermal_lock = 0;
+static int __init read_thermal_lock(char *s)
+{
+	if (s)
+		thermal_lock = simple_strtoul(s, NULL, 0);
+
+	return 1;
+}
+__setup("zyc.thermal_lock=", read_thermal_lock);
+
 /*
  * Governor section: set of functions to handle thermal governors
  *
@@ -1674,6 +1684,9 @@ thermal_sconfig_store(struct device *dev,
 	int val = 1;
 
 	val = simple_strtol(buf, NULL, 10);
+
+	if (thermal_lock > 0)
+		val = thermal_lock;
 
 	atomic_set(&switch_mode, val);
 
