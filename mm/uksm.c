@@ -528,7 +528,7 @@ static unsigned int uksm_sleep_saved;
 /* Max percentage of cpu utilization ksmd can take to scan in one batch */
 static unsigned int uksm_max_cpu_percentage;
 
-static int uksm_cpu_governor = 1;
+static int uksm_cpu_governor = 3;
 
 static char *uksm_cpu_governor_str[4] = { "full", "medium", "low", "quiet" };
 
@@ -539,10 +539,10 @@ struct uksm_cpu_preset_s {
 };
 
 struct uksm_cpu_preset_s uksm_cpu_preset[4] = {
-	{ {20, -2500, -5000, -10000}, {1250,  750,  500,  250}, 19},
-	{ {18, -1250, -2500, -10000}, {2500, 1500, 1000,  500}, 10},
-	{ {14,  -630, -1250, -10000}, {4250, 2550, 1700,  850},  6},
-	{ {10,  -100,  -200,   -500}, {5000, 3000, 2000, 1000},  1},
+	{ {20, 40, -5000, -10000}, {1250,  750,  500,  250}, 19},
+	{ {18, 32, -2500, -10000}, {2500, 1500, 1000,  500}, 10},
+	{ {14, 28, -1250, -10000}, {4250, 2550, 1700,  850},  6},
+	{ {10, 20,  -630, -10000}, {5000, 3000, 2000, 1000},  1},
 };
 
 /* The default value for uksm_ema_page_time if it's not initialized */
@@ -575,7 +575,7 @@ static unsigned long long uksm_sleep_times;
 #define UKSM_RUN_MERGE	1
 static unsigned int uksm_run = 1;
 #if defined(CONFIG_UKSM_AUTO_MSM) || defined(CONFIG_UKSM_AUTO_FB)
-static unsigned int uksm_display_state = 1;
+static unsigned int uksm_display_state = 0;
 static unsigned int uksm_run_temp = 1;
 #endif
 
@@ -5645,7 +5645,7 @@ static int __init uksm_init(void)
 	}
 #endif
 
-	uksm_sleep_jiffies = msecs_to_jiffies(200);
+	uksm_sleep_jiffies = msecs_to_jiffies(1000);
 	uksm_sleep_saved = uksm_sleep_jiffies;
 
 	slot_tree_init();
