@@ -30,7 +30,7 @@ module_param(kgsl_old_check_gpuaddr, bool, 0644);
 bool __read_mostly kgsl_old_close = true;
 module_param(kgsl_old_close, bool, 0644);
 
-bool __read_mostly kgsl_thermal_limit = 0;
+bool __read_mostly kgsl_thermal_limit = false;
 module_param(kgsl_thermal_limit, bool, 0644);
 
 static int __init prepare_driver_init(void) {
