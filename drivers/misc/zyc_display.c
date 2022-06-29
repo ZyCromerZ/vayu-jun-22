@@ -25,6 +25,7 @@ MODULE_DESCRIPTION("zyc display");
 MODULE_VERSION("0.0.1");
 
 bool __read_mostly use_old_mdsi_pan = false;
+module_param(use_old_mdsi_pan, bool, 0644);
 
 static int __init read_old_mdsi(char *s)
 {
