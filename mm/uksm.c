@@ -528,7 +528,7 @@ static unsigned int uksm_sleep_saved;
 /* Max percentage of cpu utilization ksmd can take to scan in one batch */
 static unsigned int uksm_max_cpu_percentage;
 
-static int uksm_cpu_governor = 1;
+static int uksm_cpu_governor = 3;
 
 static char *uksm_cpu_governor_str[4] = { "full", "medium", "low", "quiet" };
 
@@ -539,10 +539,10 @@ struct uksm_cpu_preset_s {
 };
 
 struct uksm_cpu_preset_s uksm_cpu_preset[4] = {
-	{ {20, -2500, -5000, -10000}, {1000,  500,  200,   50}, 19},
-	{ {18, -1250, -2500, -10000}, {1000,  500,  400,  100}, 10},
-	{ {14,  -630, -1250, -10000}, {1500, 1000, 1000,  250},  6},
-	{ {10,    20,    40, 	 75}, {2000, 1000, 1000, 1000},  1},
+	{ {20, 40, -5000, -10000}, {1250,  750,  500,  250}, 19},
+	{ {18, 32, -2500, -10000}, {2500, 1500, 1000,  500}, 10},
+	{ {14, 28, -1250, -10000}, {4250, 2550, 1700,  850},  6},
+	{ {10, 20,  -630, -10000}, {5000, 3000, 2000, 1000},  1},
 };
 
 /* The default value for uksm_ema_page_time if it's not initialized */
@@ -575,7 +575,8 @@ static unsigned long long uksm_sleep_times;
 #define UKSM_RUN_MERGE	1
 static unsigned int uksm_run = 1;
 #if defined(CONFIG_UKSM_AUTO_MSM) || defined(CONFIG_UKSM_AUTO_FB)
-static unsigned int uksm_display_state = 1;
+static unsigned int uksm_display_state = 0;
+static unsigned int uksm_run_temp = 1;
 #endif
 
 static DECLARE_WAIT_QUEUE_HEAD(uksm_thread_wait);
@@ -4969,6 +4970,16 @@ static ssize_t cpu_governor_store(struct kobject *kobj,
 }
 UKSM_ATTR(cpu_governor);
 
+static void update_uksm_run(int flags){
+	mutex_lock(&uksm_thread_mutex);
+	if (uksm_run != flags)
+		uksm_run = flags;
+	mutex_unlock(&uksm_thread_mutex);
+
+	if (flags & UKSM_RUN_MERGE)
+		wake_up_interruptible(&uksm_thread_wait);
+}
+
 static ssize_t run_show(struct kobject *kobj, struct kobj_attribute *attr,
 			char *buf)
 {
@@ -4987,13 +4998,8 @@ static ssize_t run_store(struct kobject *kobj, struct kobj_attribute *attr,
 	if (flags > UKSM_RUN_MERGE)
 		return -EINVAL;
 
-	mutex_lock(&uksm_thread_mutex);
-	if (uksm_run != flags)
-		uksm_run = flags;
-	mutex_unlock(&uksm_thread_mutex);
-
-	if (flags & UKSM_RUN_MERGE)
-		wake_up_interruptible(&uksm_thread_wait);
+	update_uksm_run(flags);
+	uksm_run_temp = flags;
 
 	return count;
 }
@@ -5569,19 +5575,20 @@ static inline int get_notifier_callback(struct notifier_block *self,
 	if (uksm_display_state != 1)
 		goto out;
 
+	if (uksm_run_temp != 1)
+		goto out;
+
 	blank = evdata->data;
 	switch (*blank) {
 	case MSM_DRM_BLANK_POWERDOWN:
 		if (uksm_run == 0)
 			break;
-		uksm_run = 0;
-		pr_info("UKSM: update uksm_run to 0\n");
+		update_uksm_run(0);
 		break;
 	case MSM_DRM_BLANK_UNBLANK:
 		if (uksm_run == 1)
 			break;
-		uksm_run = 1;
-		pr_info("UKSM: update uksm_run to 1\n");
+		update_uksm_run(1);
 		break;
 	}
 #elif defined(CONFIG_UKSM_AUTO_FB)
@@ -5594,19 +5601,20 @@ static inline int get_notifier_callback(struct notifier_block *self,
 	if (uksm_display_state != 1)
 		goto out;
 
+	if (uksm_run_temp != 1)
+		goto out;
+
 	blank = evdata->data;
 	switch (*blank) {
 	case FB_BLANK_POWERDOWN:
 		if (uksm_run == 0)
 			break;
-		uksm_run = 0;
-		pr_info("UKSM: update uksm_run to 0\n");
+		update_uksm_run(0);
 		break;
 	case FB_BLANK_UNBLANK:
 		if (uksm_run == 1)
 			break;
-		uksm_run = 1;
-		pr_info("UKSM: update uksm_run to 1\n");
+		update_uksm_run(1);
 		break;
 	}
 #endif
@@ -5637,7 +5645,7 @@ static int __init uksm_init(void)
 	}
 #endif
 
-	uksm_sleep_jiffies = msecs_to_jiffies(200);
+	uksm_sleep_jiffies = msecs_to_jiffies(1000);
 	uksm_sleep_saved = uksm_sleep_jiffies;
 
 	slot_tree_init();
