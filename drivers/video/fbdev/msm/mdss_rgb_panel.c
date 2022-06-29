@@ -390,7 +390,7 @@ static int mdss_rgb_panel_parse_dt(struct device_node *np,
 	int rc = 0;
 	struct mdss_panel_info *pinfo = &(rgb_data->panel_data.panel_info);
 
-	if (&use_old_mdsi_pan){
+	if (use_old_mdsi_pan){
 		pinfo->physical_width = 0;
 		rc = of_property_read_u32(np, "qcom,mdss-pan-physical-width-dimension-old",
 				&pinfo->physical_width);
