@@ -37,11 +37,12 @@
 unsigned int __read_mostly cpulimit = 1;
 static int __init read_cpulimit(char *s)
 {
-	if (s)
+	if (s) {
 		cpulimit = simple_strtoul(s, NULL, 0);
 		if ( cpulimit > 0 ) {
 			cpulimit = 1;
 		}
+	}
 	return 1;
 }
 __setup("zyc.cpulimit=", read_cpulimit);
