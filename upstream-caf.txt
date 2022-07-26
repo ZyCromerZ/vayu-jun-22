@@ -1,4 +1,4 @@
-TAGSS="LA.UM.9.1.r1-11900.02-SMxxx0.QSSI12.0"
+TAGSS="LA.UM.9.1.r1-12100-SMxxx0.QSSI12.0"
 
 initial-qcacld(){
     git fetch https://source.codeaurora.org/quic/la/platform/vendor/qcom-opensource/wlan/$1 $2
