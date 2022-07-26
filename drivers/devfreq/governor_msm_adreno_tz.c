@@ -68,12 +68,13 @@ static unsigned int adrenoboost = 3;
 static int uci_adrenoboost = 3;
 static int __init read_adrenoboost(char *s)
 {
-	if (s)
+	if (s) {
 		adrenoboost = simple_strtoul(s, NULL, 0);
 		if (adrenoboost < 0 || adrenoboost > 3) {
 			adrenoboost = 0;
 		}
 		uci_adrenoboost = adrenoboost;
+	}
 	return 1;
 }
 __setup("zyc.adrenoboost=", read_adrenoboost);
