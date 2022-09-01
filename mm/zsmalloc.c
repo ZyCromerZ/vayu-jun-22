@@ -2356,7 +2356,6 @@ unsigned long zs_compact(struct zs_pool *pool)
 {
 	int i;
 	struct size_class *class;
-	unsigned long pages_freed = 0;
 
 	for (i = ZS_SIZE_CLASSES - 1; i >= 0; i--) {
 		class = pool->size_class[i];
@@ -2364,11 +2363,10 @@ unsigned long zs_compact(struct zs_pool *pool)
 			continue;
 		if (class->index != i)
 			continue;
-		pages_freed += __zs_compact(pool, class);
+		__zs_compact(pool, class);
 	}
-	atomic_long_add(pages_freed, &pool->stats.pages_compacted);
 
-	return pages_freed;
+	return pool->stats.pages_compacted;
 }
 EXPORT_SYMBOL_GPL(zs_compact);
 
