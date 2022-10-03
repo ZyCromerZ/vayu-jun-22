@@ -15461,6 +15461,7 @@ void hdd_init_start_completion(void)
 	INIT_COMPLETION(wlan_start_comp);
 }
 
+static int hdd_driver_load(void);
 #if defined CFG80211_USER_HINT_CELL_BASE_SELF_MANAGED || \
                     (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 18, 0))
 static void hdd_inform_wifi_on(void)
