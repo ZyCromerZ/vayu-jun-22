@@ -2027,7 +2027,41 @@ const struct file_operations proc_pagemap_operations = {
 #endif /* CONFIG_PROC_PAGE_MONITOR */
 
 #ifdef CONFIG_PROCESS_RECLAIM
-static int reclaim_pte_range(pmd_t *pmd, unsigned long addr,
+
+#define FOREGROUND_APP_ADJ 0
+#define CACHED_APP_MIN_ADJ 900
+
+static bool running_state = true;
+static inline bool can_reclaim(short before_reclaim_adj,
+	struct mm_struct *mm, struct task_struct *task)
+{
+	short cur_oom_score_adj;
+
+	if (running_state == false ||
+			fatal_signal_pending(task) ||
+			task->flags & PF_EXITING ||
+			!list_empty(&mm->mmap_sem.wait_list)) {
+		pr_info("stop reclaim: force\n");
+
+		return false;
+	}
+
+	cur_oom_score_adj = task->signal->oom_score_adj;
+	if ((cur_oom_score_adj < CACHED_APP_MIN_ADJ &&
+			cur_oom_score_adj < before_reclaim_adj) ||
+			FOREGROUND_APP_ADJ == cur_oom_score_adj) {
+		pr_info("[c:%s %d, r:%s %d] adj adjust %d %d\n",
+			current->comm, current->pid,
+			task->comm, task->pid,
+			before_reclaim_adj, cur_oom_score_adj);
+
+		return false;
+	}
+
+	return true;
+}
+
+int reclaim_pte_range(pmd_t *pmd, unsigned long addr,
 				unsigned long end, struct mm_walk *walk)
 {
 	struct reclaim_param *rp = walk->private;
@@ -2152,6 +2186,7 @@ static ssize_t reclaim_write(struct file *file, const char __user *buf,
 	enum reclaim_type type;
 	char *type_buf;
 	struct mm_walk reclaim_walk = {};
+	short before_reclaim_adj;
 	unsigned long start = 0;
 	unsigned long end = 0;
 	struct reclaim_param rp;
@@ -2170,10 +2205,19 @@ static ssize_t reclaim_write(struct file *file, const char __user *buf,
 		type = RECLAIM_ANON;
 	else if (!strcmp(type_buf, "all"))
 		type = RECLAIM_ALL;
-	else if (isdigit(*type_buf))
+	else if (!strcmp(type_buf, "start")) {
+		running_state = true;
+		return count;
+	} else if (!strcmp(type_buf, "end")) {
+		running_state = false;
+		return count;
+	} else if (isdigit(*type_buf))
 		type = RECLAIM_RANGE;
 	else
 		goto out_err;
+
+	if (false == running_state)
+		return count;
 
 	if (type == RECLAIM_RANGE) {
 		char *token;
@@ -2221,6 +2265,10 @@ static ssize_t reclaim_write(struct file *file, const char __user *buf,
 	rp.nr_reclaimed = 0;
 	reclaim_walk.private = &rp;
 
+	if (NULL == task->signal)
+		goto out;
+
+	before_reclaim_adj = task->signal->oom_score_adj;
 	down_read(&mm->mmap_sem);
 	if (type == RECLAIM_RANGE) {
 		vma = find_vma(mm, start);
@@ -2238,6 +2286,9 @@ static ssize_t reclaim_write(struct file *file, const char __user *buf,
 		}
 	} else {
 		for (vma = mm->mmap; vma; vma = vma->vm_next) {
+			if (!can_reclaim(before_reclaim_adj, mm, task))
+				break;
+
 			if (is_vm_hugetlb_page(vma))
 				continue;
 
