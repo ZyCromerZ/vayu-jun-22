@@ -62,11 +62,10 @@ if [[ ! -z "$1" ]] && [ "$1" == "regen" ] ;then
     cp -af ../../vayu/out/.config $MainPath/arch/arm64/configs/$Defconfig
 else
     make -j$(($GetCore))  O=../../vayu/out \
-                                PATH="../../clang/google-clang/bin:../../gcc/aarch64-linux-android-4.9/bin:../../gcc/arm-linux-androideabi-4.9/bin:${PATH}" \
-                                LD_LIBRARY_PATH="../../clang/google-clang/lib64:${LD_LIBRARY_PATH}" \
+                                PATH="../../clang/Clang-17.0.0-20230207/bin:${PATH}" \
                                 CC="clang" \
-                                CROSS_COMPILE=aarch64-linux-android- \
-                                CROSS_COMPILE_ARM32=arm-linux-androideabi- \
+                                CROSS_COMPILE=aarch64-linux-gnu- \
+                                CROSS_COMPILE_ARM32=arm-linux-gnueabi- \
                                 CLANG_TRIPLE=aarch64-linux-gnu- dtbo.img
     # [ -e ../../vayu/out/arch/arm64/boot/Image ] && [ -e ../../vayu/out/arch/arm64/boot/dtbo.img ] && MakeZip
 fi
