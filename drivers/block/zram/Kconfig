@@ -59,7 +59,13 @@ config ZRAM_DEFAULT_COMP_ALGORITHM
 	default "lzo"
 
 config ZRAM_SIZE_OVERRIDE
+	bool "zram size to set from kernel"
+	depends on ZRAM
+	default n
+
+config ZRAM_SIZE_OVERRIDE_SIZE
 	int "zram size to set from kernel"
+	depends on ZRAM_SIZE_OVERRIDE
 	range 1 8
 	default 3
 

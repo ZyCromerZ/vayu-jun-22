@@ -2445,12 +2445,12 @@ static ssize_t disksize_store(struct device *dev,
 	struct zram *zram = dev_to_zram(dev);
 	int err;
 
-#ifndef CONFIG_ZRAM_SIZE_OVERRIDE
+#ifndef CONFIG_ZRAM_SIZE_OVERRIDE_SIZE
 	disksize = memparse(buf, NULL);
 	if (!disksize)
 		return -EINVAL;
 #else
-	disksize = (u64)SZ_1G * CONFIG_ZRAM_SIZE_OVERRIDE;
+	disksize = (u64)SZ_1G * CONFIG_ZRAM_SIZE_OVERRIDE_SIZE;
 	pr_info("Overriding zram size to %li", disksize);
 #endif
 
