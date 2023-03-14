@@ -2075,7 +2075,7 @@ int reclaim_address_space(struct address_space *mapping,
 	start = 0;
 	rcu_read_lock();
 
-	radix_tree_for_each_slot(slot, &mapping->i_pages, &iter, start) {
+	radix_tree_for_each_slot(slot, &mapping->page_tree, &iter, start) {
 
 		page = radix_tree_deref_slot(slot);
 
