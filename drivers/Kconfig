@@ -230,9 +230,3 @@ source "drivers/esoc/Kconfig"
 source "techpack/data/drivers/Kconfig"
 
 endmenu
-
-menu "KernelSU config"
-
-source "drivers/kernelsu/Kconfig"
-
-endmenu
