@@ -1178,7 +1178,7 @@ static int kgsl_close_device(struct kgsl_device *device)
 	int result = 0;
 
 	mutex_lock(&device->mutex);
-	if (kgsl_old_close) {
+	if (&kgsl_old_close > 0) {
 		if (device->open_count == 1) {
 
 			/* Wait for the active count to go to 0 */
@@ -1394,7 +1394,7 @@ kgsl_sharedmem_find(struct kgsl_process_private *private, uint64_t gpuaddr)
 	if (!private)
 		return NULL;
 
-	if (kgsl_old_check_gpuaddr) {
+	if (&kgsl_old_check_gpuaddr > 0) {
 		if (!kgsl_mmu_gpuaddr_in_range(private->pagetable, gpuaddr) &&
 			!kgsl_mmu_gpuaddr_in_range(
 				private->pagetable->mmu->securepagetable, gpuaddr))

@@ -8,7 +8,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * Copyright (C) 2022 ZyCromerZ
+ * Copyright (C) 2023 ZyCromerZ
  *
  * Inspired from lyb gpu
  *
@@ -24,14 +24,14 @@ MODULE_AUTHOR("ZyCromerZ");
 MODULE_DESCRIPTION("zyc gpu");
 MODULE_VERSION("0.0.1");
 
-bool __read_mostly kgsl_old_check_gpuaddr = true;
-module_param(kgsl_old_check_gpuaddr, bool, 0644);
+unsigned int __read_mostly kgsl_old_check_gpuaddr = 1;
+module_param(kgsl_old_check_gpuaddr, uint, 0644);
 
-bool __read_mostly kgsl_old_close = true;
-module_param(kgsl_old_close, bool, 0644);
+unsigned int __read_mostly kgsl_old_close = 1;
+module_param(kgsl_old_close, uint, 0644);
 
-bool __read_mostly kgsl_thermal_limit = false;
-module_param(kgsl_thermal_limit, bool, 0644);
+unsigned int __read_mostly kgsl_thermal_limit = 0;
+module_param(kgsl_thermal_limit, uint, 0644);
 
 static int __init prepare_driver_init(void) {
  printk(KERN_INFO "zyc gpu initialized");

@@ -595,7 +595,7 @@ static ssize_t kgsl_pwrctrl_thermal_pwrlevel_store(struct device *dev,
 
 	mutex_lock(&device->mutex);
 
-	if (kgsl_thermal_limit){
+	if (&kgsl_thermal_limit > 0){
 		if (level > pwr->num_pwrlevels - 2)
 			level = pwr->num_pwrlevels - 2;
 	} else {
@@ -679,7 +679,7 @@ static void kgsl_pwrctrl_min_pwrlevel_set(struct kgsl_device *device,
 	struct kgsl_pwrctrl *pwr = &device->pwrctrl;
 
 	mutex_lock(&device->mutex);
-	if (kgsl_thermal_limit){
+	if (&kgsl_thermal_limit > 0){
 		if (level > pwr->num_pwrlevels - 2)
 			level = pwr->num_pwrlevels - 2;
 	} else {

@@ -788,7 +788,7 @@ static int mdss_spi_panel_parse_dt(struct device_node *np,
 	}
 	pinfo->yres = tmp;
 
-	if (use_old_mdsi_pan){
+	if (&use_old_mdsi_pan > 0){
 		rc = of_property_read_u32(np,
 			"qcom,mdss-pan-physical-width-dimension-old", &tmp);
 		pinfo->physical_width = (!rc ? tmp : 0);

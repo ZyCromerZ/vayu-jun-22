@@ -8,10 +8,10 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * Copyright (C) 2022 ZyCromerZ
+ * Copyright (C) 2023 ZyCromerZ
  *
  * Inspired from lyb taskmmu
  *
  */
 
-extern bool use_old_mdsi_pan;
+extern unsigned int use_old_mdsi_pan;

@@ -8,7 +8,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * Copyright (C) 2022 ZyCromerZ
+ * Copyright (C) 2023 ZyCromerZ
  *
  * Inspired from lyb taskmmu
  *
@@ -24,17 +24,17 @@ MODULE_AUTHOR("ZyCromerZ");
 MODULE_DESCRIPTION("zyc taskmmu");
 MODULE_VERSION("0.0.1");
 
-bool __read_mostly sultan_pid = false;
-module_param(sultan_pid, bool, 0644);
+unsigned int __read_mostly sultan_pid = 0;
+module_param(sultan_pid, uint, 0644);
 
-bool __read_mostly sultan_pid_map = false;
-module_param(sultan_pid_map, bool, 0644);
+unsigned int __read_mostly sultan_pid_map = 0;
+module_param(sultan_pid_map, uint, 0644);
 
-bool __read_mostly sultan_pid_shrink = false;
-module_param(sultan_pid_shrink, bool, 0644);
+unsigned int __read_mostly sultan_pid_shrink = 0;
+module_param(sultan_pid_shrink, uint, 0644);
 
-bool __read_mostly sultan_pid_smap = false;
-module_param(sultan_pid_smap, bool, 0644);
+unsigned int __read_mostly sultan_pid_smap = 0;
+module_param(sultan_pid_smap, uint, 0644);
 
 static int __init read_sultan_pid(char *s)
 {
@@ -43,13 +43,13 @@ static int __init read_sultan_pid(char *s)
 		status = simple_strtoul(s, NULL, 0);
 
 	if ( status > 0 ) {
-		sultan_pid = true;
-		sultan_pid_map = true;
-		sultan_pid_smap = true;
+		sultan_pid = 1;
+		sultan_pid_map = 1;
+		sultan_pid_smap = 1;
 	} else {
-		sultan_pid = false;
-		sultan_pid_map = false;
-		sultan_pid_smap = false;
+		sultan_pid = 0;
+		sultan_pid_map = 0;
+		sultan_pid_smap = 0;
 	}
 	return 1;
 }

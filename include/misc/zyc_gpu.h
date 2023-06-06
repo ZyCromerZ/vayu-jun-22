@@ -8,12 +8,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * Copyright (C) 2022 ZyCromerZ
+ * Copyright (C) 2023 ZyCromerZ
  *
  * Inspired from lyb taskmmu
  *
  */
 
-extern bool kgsl_old_check_gpuaddr;
-extern bool kgsl_old_close;
-extern bool kgsl_thermal_limit;
+extern unsigned int kgsl_old_check_gpuaddr;
+extern unsigned int kgsl_old_close;
+extern unsigned int kgsl_thermal_limit;

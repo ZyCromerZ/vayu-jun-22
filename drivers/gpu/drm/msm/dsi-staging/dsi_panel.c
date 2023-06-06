@@ -1798,7 +1798,7 @@ static int dsi_panel_parse_phy_props(struct dsi_panel *panel)
 	struct dsi_panel_phy_props *props = &panel->phy_props;
 	struct dsi_parser_utils *utils = &panel->utils;
 	const char *name = panel->name;
-	if (use_old_mdsi_pan){
+	if (&use_old_mdsi_pan > 0){
 		rc = utils->read_u32(utils->data,
 			"qcom,mdss-pan-physical-width-dimension-old", &val);
 	} else {
@@ -1813,7 +1813,7 @@ static int dsi_panel_parse_phy_props(struct dsi_panel *panel)
 		props->panel_width_mm = val;
 	}
 	
-	if (use_old_mdsi_pan){
+	if (&use_old_mdsi_pan > 0){
 		rc = utils->read_u32(utils->data,
 					"qcom,mdss-pan-physical-height-dimension-old",
 					&val);
