@@ -8,7 +8,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * Copyright (C) 2023 ZyCromerZ
+ * Copyright (C) 2022 ZyCromerZ
  *
  * Inspired from lyb display
  *
@@ -24,8 +24,8 @@ MODULE_AUTHOR("ZyCromerZ");
 MODULE_DESCRIPTION("zyc display");
 MODULE_VERSION("0.0.1");
 
-unsigned int __read_mostly use_old_mdsi_pan = 1;
-module_param(use_old_mdsi_pan, uint, 0644);
+bool __read_mostly use_old_mdsi_pan = false;
+module_param(use_old_mdsi_pan, bool, 0644);
 
 static int __init read_old_mdsi(char *s)
 {
@@ -34,9 +34,9 @@ static int __init read_old_mdsi(char *s)
 		status = simple_strtoul(s, NULL, 0);
 
 	if ( status > 0 ) {
-		use_old_mdsi_pan = 1;
+		use_old_mdsi_pan = true;
 	} else {
-		use_old_mdsi_pan = 0;
+		use_old_mdsi_pan = false;
 	}
 	return 1;
 }

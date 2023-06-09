@@ -2846,7 +2846,7 @@ static int mdss_panel_parse_dt(struct device_node *np,
 	if (mdss_dsi_is_hw_config_split(ctrl_pdata->shared_data))
 		pinfo->is_split_display = true;
 
-	if (&use_old_mdsi_pan > 0){
+	if (use_old_mdsi_pan){
 		rc = of_property_read_u32(np,
 			"qcom,mdss-pan-physical-width-dimension-old", &tmp);
 		pinfo->physical_width = (!rc ? tmp : 0);
