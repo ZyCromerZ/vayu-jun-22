@@ -384,6 +384,21 @@ static int mdss_rgb_panel_parse_display_timings(struct device_node *np,
 	return rc;
 }
 
+static int __init read_old_mdsi_b(char *s)
+{
+    int status;
+	if (s)
+		status = simple_strtoul(s, NULL, 0);
+
+	if ( status > 0 ) {
+		use_old_mdsi_pan = true;
+	} else {
+		use_old_mdsi_pan = false;
+	}
+	return 1;
+}
+__setup("zyc.old_mdsi=", read_old_mdsi_b);
+
 static int mdss_rgb_panel_parse_dt(struct device_node *np,
 		struct mdss_rgb_data *rgb_data)
 {

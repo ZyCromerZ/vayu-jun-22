@@ -2833,6 +2833,21 @@ exit:
 	return rc;
 }
 
+static int __init read_old_mdsi_a(char *s)
+{
+    int status;
+	if (s)
+		status = simple_strtoul(s, NULL, 0);
+
+	if ( status > 0 ) {
+		use_old_mdsi_pan = true;
+	} else {
+		use_old_mdsi_pan = false;
+	}
+	return 1;
+}
+__setup("zyc.old_mdsi=", read_old_mdsi_a);
+
 static int mdss_panel_parse_dt(struct device_node *np,
 			struct mdss_dsi_ctrl_pdata *ctrl_pdata)
 {

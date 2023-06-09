@@ -8,7 +8,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * Copyright (C) 2022 ZyCromerZ
+ * Copyright (C) 2023 ZyCromerZ
  *
  * Inspired from lyb gpu
  *

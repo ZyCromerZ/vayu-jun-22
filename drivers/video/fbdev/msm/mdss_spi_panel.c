@@ -763,6 +763,21 @@ static void mdss_spi_parse_esd_params(struct device_node *np,
 	}
 }
 
+static int __init read_old_mdsi_c(char *s)
+{
+    int status;
+	if (s)
+		status = simple_strtoul(s, NULL, 0);
+
+	if ( status > 0 ) {
+		use_old_mdsi_pan = true;
+	} else {
+		use_old_mdsi_pan = false;
+	}
+	return 1;
+}
+__setup("zyc.old_mdsi=", read_old_mdsi_c);
+
 static int mdss_spi_panel_parse_dt(struct device_node *np,
 		struct spi_panel_data	*ctrl_pdata)
 {

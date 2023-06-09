@@ -8,7 +8,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * Copyright (C) 2022 ZyCromerZ
+ * Copyright (C) 2023 ZyCromerZ
  *
  * Inspired from lyb display
  *
@@ -26,21 +26,6 @@ MODULE_VERSION("0.0.1");
 
 bool __read_mostly use_old_mdsi_pan = false;
 module_param(use_old_mdsi_pan, bool, 0644);
-
-static int __init read_old_mdsi(char *s)
-{
-    int status;
-	if (s)
-		status = simple_strtoul(s, NULL, 0);
-
-	if ( status > 0 ) {
-		use_old_mdsi_pan = true;
-	} else {
-		use_old_mdsi_pan = false;
-	}
-	return 1;
-}
-__setup("zyc.old_mdsi=", read_old_mdsi);
 
 static int __init prepare_driver_init(void) {
  printk(KERN_INFO "zyc display initialized");
