@@ -3,10 +3,10 @@ stop="n"
 ChangeStop()
 {
     stop="y"
-    break
 }
 for auah in 20220412/Flata 20220412/RutuF
 do
+    [[ "${stop}" == "y" ]] && break
     git checkout $auah
     # git reset --hard HEAD~1
     if [[ "$auah" == "20220412/Flata" ]];then
@@ -17,6 +17,7 @@ do
     # git commit -sm "Merge Branch '20220412/main-f2fs' into ${auah}"
     git pull . 20220412/main-upstream --signoff --no-commit || ChangeStop
     git commit -sm "Merge Branch '20220412/main-upstream' into ${auah}"
+    [[ "${stop}" == "y" ]] && break
     git checkout ${auah}+
     # git reset --hard HEAD~1
     git pull . 20220412/main --signoff --no-commit || ChangeStop
@@ -41,12 +42,14 @@ done
 if [[ "${stop}" == "n" ]];then
     for aelah in 20220412/main-x 20220412/main-y
     do
+        [[ "${stop}" == "y" ]] && break
         git checkout $aelah
         # git reset --hard HEAD~1
         git pull . 20220412/main-uksm --signoff --no-commit || ChangeStop
         git commit -sm "Merge Branch '20220412/main-uksm' into ${aelah}"
         git pull . 20220412/main --signoff --no-commit || ChangeStop
         git commit -sm "Merge Branch '20220412/main' into ${aelah}"
+        [[ "${stop}" == "y" ]] && break
         git checkout $aelah-up
         # git reset --hard HEAD~1
         git pull . $aelah --signoff --no-commit || ChangeStop
