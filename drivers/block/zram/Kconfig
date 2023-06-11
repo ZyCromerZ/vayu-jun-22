@@ -68,13 +68,3 @@ config ZRAM_SIZE_OVERRIDE_SIZE
 	depends on ZRAM_SIZE_OVERRIDE
 	range 1 8
 	default 3
-
-config MIUI_ZRAM_MEMORY_TRACKING
-	bool "Track zRam stats"
-	depends on ZRAM
-	help
-	  With this feature, admin can track the state of zram
-	  of zRAM. Admin could see the information via
-	  /sys/block/zramX/.
-
-	  See Documentation/blockdev/zram.txt for more information.
