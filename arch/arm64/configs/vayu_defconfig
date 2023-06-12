@@ -1589,6 +1589,7 @@ CONFIG_FORCE_FAST_CHARGE=y
 # FingerprintCard fingerprint driver
 #
 # CONFIG_FPR_FPC is not set
+CONFIG_MI_MEMORY_SYSFS=y
 # CONFIG_OKL4_USER_VIPC is not set
 CONFIG_OKL4_LINK_SHBUF=y
 
